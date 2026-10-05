@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>知食 NutriMind · 桌面端 UI 原型 v0</title>
+<style>
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  src: url('https://cdn.jsdelivr.net/npm/@fontsource/bricolage-grotesque@5.0.0/files/bricolage-grotesque-latin-500-normal.woff2') format('woff2');
+  font-weight: 500; font-display: swap;
+}
+
+:root {
+  --font-display: 'Bricolage Grotesque', 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif;
+  --font-body: 'PingFang SC', 'HarmonyOS Sans SC', 'Source Han Sans SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+
+  --paper: #F7F3EC;
+  --card: #FFFFFF;
+  --sunken: #F1EBE0;
+  --line: #E5DDCF;
+  --line-strong: #D3C9B6;
+
+  --ink: #23231F;
+  --ink-2: #6B675D;
+  --ink-3: #989285;
+
+  --accent: #C6F24E;
+  --accent-ink: #567013;
+  --accent-soft: #EDF5DA;
+  --olive: #4F6B2A;
+  --terracotta: #D08A5A;
+  --hair: #EFE9DE;
+
+  --shadow-1: 0 1px 2px rgba(72, 56, 30, 0.05), 0 6px 16px rgba(72, 56, 30, 0.05);
+  --shadow-2: 0 14px 40px rgba(72, 56, 30, 0.12);
+
+  --rail-w: 216px;
+  --topbar-h: 56px;
+  --content-max: 1320px;
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --pill: 999px;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 150ms;
+  --dur: 260ms;
+  --dur-slow: 420ms;
+  --dense: 1;
+}
+
+[data-theme='dark'] {
+  --paper: #151513;
+  --card: #1E1E1B;
+  --sunken: #262620;
+  --line: #322F28;
+  --line-strong: #443F36;
+  --ink: #F2EFE7;
+  --ink-2: #A6A094;
+  --ink-3: #7A7468;
+  --accent: #C6F24E;
+  --accent-ink: #D6F58C;
+  --accent-soft: #2A3315;
+  --olive: #A7C46B;
+  --terracotta: #E0A57C;
+  --hair: #272620;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.35), 0 6px 16px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 14px 40px rgba(0, 0, 0, 0.5);
+}
+[data-accent='olive'] { --accent: #7FA33E; --accent-ink: #4F6B2A; --accent-soft: #EDF3DF; }
+[data-theme='dark'][data-accent='olive'] { --accent: #9DBF5C; --accent-ink: #C7DE96; --accent-soft: #2A3315; }
+[data-accent='terracotta'] { --accent: #DB925C; --accent-ink: #94501F; --accent-soft: #FBEEE2; }
+[data-theme='dark'][data-accent='terracotta'] { --accent: #E0A57C; --accent-ink: #EFC9AC; --accent-soft: #33241A; }
+[data-density='dense'] { --dense: 0.84; --r-md: 12px; }
+[data-motion='off'] * { animation: none !important; transition-duration: 1ms !important; }
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: #E7E1D6; color: var(--ink);
+  font-family: var(--font-body); font-size: 14px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+[data-theme='dark'] body { background: #0E0E0D; }
+.num { font-variant-numeric: tabular-nums; }
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 500; margin: 0; }
+kbd {
+  font-family: var(--font-body); font-size: 11px; border: 1px solid var(--line-strong);
+  border-bottom-width: 2px; border-radius: 6px; padding: 1px 6px; color: var(--ink-2); background: var(--card);
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.win {
+  width: 1400px; height: 880px; margin: 0 auto; background: var(--paper);
+  border-radius: 14px; overflow: hidden; box-shadow: 0 30px 80px rgba(45, 34, 15, 0.25);
+  display: flex; flex-direction: column; transform-origin: top center;
+}
+.win-bar {
+  height: 34px; flex: none; background: var(--sunken); border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 7px; padding: 0 14px;
+}
+.win-bar i { width: 11px; height: 11px; border-radius: 50%; background: var(--line-strong); display: block; }
+.win-bar span { margin-left: auto; font-size: 12px; color: var(--ink-3); }
+
+.app { flex: 1; display: grid; grid-template-columns: var(--rail-w) minmax(0, 1fr); min-height: 0; transition: grid-template-columns var(--dur) var(--ease); }
+body.rail-collapsed .app { grid-template-columns: 72px minmax(0, 1fr); }
+
+.rail { background: var(--card); border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: 14px 12px; min-height: 0; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 6px 8px 18px; overflow: hidden; }
+.brand-mark { width: 30px; height: 30px; border-radius: 9px; background: var(--accent); flex: none; position: relative; }
+.brand-mark::after { content: ''; position: absolute; inset: 9px 7px 7px 7px; border: 2px solid #23231F; border-top: none; border-radius: 0 0 20px 20px; }
+.brand-txt { white-space: nowrap; }
+body.rail-collapsed .brand-txt, body.rail-collapsed .nav-label, body.rail-collapsed .rail-foot .who { display: none; }
+.nav-item {
+  display: flex; align-items: center; gap: 11px; padding: 9px 10px; border-radius: var(--r-sm);
+  color: var(--ink-2); cursor: pointer; border: none; background: none; width: 100%; text-align: left;
+  font-size: 14px; font-family: var(--font-body); min-height: 40px;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.nav-item:hover { background: var(--sunken); color: var(--ink); }
+.nav-item.is-on { background: var(--accent-soft); color: var(--accent-ink); }
+.nav-ico { width: 18px; height: 18px; border: 1.6px solid currentColor; border-radius: 5px; flex: none; opacity: 0.9; }
+.nav-label { white-space: nowrap; }
+.rail-foot { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+.rail-collapse { border: 1px solid var(--line); background: var(--card); border-radius: var(--r-sm); padding: 6px; cursor: pointer; color: var(--ink-2); font-family: var(--font-body); font-size: 12px; }
+
+.main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.topbar {
+  height: var(--topbar-h); flex: none; border-bottom: 1px solid var(--line); background: var(--card);
+  display: flex; align-items: center; gap: 14px; padding: 0 22px;
+}
+.crumb { font-size: 14px; color: var(--ink-2); }
+.crumb b { color: var(--ink); font-weight: 500; font-family: var(--font-display); font-size: 15px; }
+.spacer { margin-left: auto; }
+.search {
+  display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--sunken);
+  border-radius: var(--pill); padding: 6px 10px 6px 12px; color: var(--ink-3); font-size: 13px; min-width: 230px;
+  cursor: pointer; transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.search:hover { border-color: var(--line-strong); color: var(--ink-2); }
+.icon-btn {
+  width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: var(--card);
+  cursor: pointer; color: var(--ink-2); font-size: 13px;
+}
+.avatar {
+  width: 34px; height: 34px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink);
+  display: grid; place-items: center; font-family: var(--font-display); flex: none;
+}
+
+.views { flex: 1; overflow-y: auto; padding: calc(22px * var(--dense)); min-height: 0; }
+.views::-webkit-scrollbar { width: 10px; }
+.views::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 6px; border: 3px solid transparent; background-clip: content-box; }
+.wrap { max-width: var(--content-max); margin: 0 auto; }
+.view { display: none; animation: fade var(--dur-slow) var(--ease); }
+.view.is-on { display: block; }
+@keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--shadow-1); padding: calc(18px * var(--dense)); }
+.card-h { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.card-h h3 { font-size: 15px; }
+.card-h .note { margin-left: auto; font-size: 12px; color: var(--ink-3); }
+.muted { color: var(--ink-2); }
+.tiny { font-size: 12px; }
+
+.btn {
+  font-family: var(--font-body); font-size: 13.5px; border: 1px solid transparent; border-radius: var(--pill);
+  padding: 8px 15px; cursor: pointer; min-height: 38px; display: inline-flex; align-items: center; gap: 7px;
+  transition: transform var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: var(--accent); color: #23231F; }
+[data-theme='dark'] .btn-primary { color: #151513; }
+.btn-primary:hover { box-shadow: 0 6px 16px rgba(90, 120, 20, 0.22); }
+.btn-ghost { border-color: var(--line-strong); background: var(--card); color: var(--ink); }
+.btn-ghost:hover { background: var(--sunken); }
+.btn-quiet { background: var(--sunken); color: var(--ink); }
+.btn-quiet:hover { background: var(--line); }
+.btn-block { width: 100%; justify-content: center; }
+
+.grid-home { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.hero {
+  display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 20px; align-items: center;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg);
+  padding: 22px; box-shadow: var(--shadow-1);
+}
+.ring { position: relative; width: 150px; height: 150px; }
+.ring svg { display: block; transform: rotate(-90deg); }
+.ring-arc { transition: stroke-dashoffset var(--dur-slow) var(--ease); }
+.ring-lab { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ring-lab b { font-family: var(--font-display); font-size: 32px; }
+.stat-line { display: flex; gap: 26px; margin-top: 12px; }
+.stat-line div b { display: block; font-family: var(--font-display); font-size: 20px; }
+.stat-line div span { font-size: 12px; color: var(--ink-3); }
+
+.quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+.qcard {
+  border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px; background: var(--card); cursor: pointer;
+  text-align: left; font-family: var(--font-body); font-size: 13.5px; color: var(--ink); min-height: 84px;
+  display: flex; flex-direction: column; gap: 6px;
+  transition: box-shadow var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.qcard:hover { box-shadow: var(--shadow-2); transform: translateY(-2px); border-color: var(--line-strong); }
+.q-ico { width: 28px; height: 28px; border-radius: 8px; background: var(--accent-soft); color: var(--accent-ink); display: grid; place-items: center; font-size: 12px; }
+
+.rows { display: flex; flex-direction: column; }
+.row-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px 8px; border-bottom: 1px solid var(--hair);
+  cursor: pointer; transition: background var(--dur-fast) var(--ease), padding-left var(--dur-fast) var(--ease);
+}
+.row-item:last-child { border-bottom: none; }
+.row-item:hover { background: var(--sunken); padding-left: 12px; border-radius: var(--r-sm); }
+.row-item.is-sel { background: var(--accent-soft); border-radius: var(--r-sm); padding-left: 12px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line-strong); flex: none; }
+.dot.done { background: var(--accent); }
+
+.bar-track { height: 7px; background: var(--sunken); border-radius: var(--pill); overflow: hidden; }
+.bar-fill { height: 100%; border-radius: var(--pill); background: var(--accent); }
+.bar-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; align-items: center; gap: 10px; font-size: 12.5px; margin-bottom: 9px; }
+
+.split { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 18px; align-items: start; }
+.dropzone {
+  border: 1.5px dashed var(--line-strong); border-radius: var(--r-md); padding: 24px; text-align: center;
+  color: var(--ink-3); background: var(--sunken); margin-bottom: 16px;
+}
+.dropzone.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-ink); }
+.stepper { display: inline-flex; align-items: center; gap: 8px; }
+.stepper button { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line-strong); background: var(--card); color: var(--ink); cursor: pointer; }
+.field { display: grid; grid-template-columns: 84px minmax(0, 1fr); align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--hair); font-size: 13.5px; }
+.field:last-of-type { border-bottom: none; }
+input[type='text'], select {
+  font-family: var(--font-body); font-size: 13.5px; color: var(--ink); border: 1px solid var(--line);
+  border-radius: var(--r-sm); padding: 7px 10px; background: var(--card); width: 100%; outline: none;
+}
+input[type='text']:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+.kpi { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-md); padding: 16px; box-shadow: var(--shadow-1); }
+.kpi b { display: block; font-family: var(--font-display); font-size: 26px; line-height: 1.2; }
+.kpi .k { font-size: 12px; color: var(--ink-3); }
+.kpi .delta { font-size: 12px; }
+.up { color: var(--olive); }
+.down { color: var(--terracotta); }
+.grid-charts { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.chips { display: inline-flex; gap: 6px; }
+.chip {
+  border: 1px solid var(--line-strong); background: var(--card); color: var(--ink-2);
+  border-radius: var(--pill); padding: 4px 11px; font-size: 12px; cursor: pointer; font-family: var(--font-body);
+}
+.chip.is-on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+.pane3 { display: grid; grid-template-columns: 236px minmax(0, 1fr) 300px; gap: 0; height: 100%; min-height: 0; }
+.view.flush { padding: 0; height: 100%; }
+.ai-app { display: grid; grid-template-columns: 236px minmax(0, 1fr) 300px; height: 100%; border-top: 1px solid var(--line); }
+.col-side { border-right: 1px solid var(--line); padding: 16px 14px; overflow-y: auto; background: var(--card); }
+.col-side:last-child { border-right: none; border-left: 1px solid var(--line); }
+.msg-col { display: flex; flex-direction: column; min-height: 0; background: var(--paper); }
+.msgs { flex: 1; overflow-y: auto; padding: 26px 0; }
+.msgs::-webkit-scrollbar { width: 8px; }
+.msgs::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
+.reading { max-width: 760px; margin: 0 auto; padding: 0 28px; }
+.bubble { border-radius: var(--r-md); padding: 14px 16px; font-size: 14.5px; max-width: 100%; line-height: 1.7; }
+.bubble.ai { background: var(--card); border: 1px solid var(--line); border-bottom-left-radius: 6px; }
+.bubble.me { background: var(--accent); color: #23231F; margin-left: auto; border-bottom-right-radius: 6px; width: fit-content; max-width: 78%; }
+[data-theme='dark'] .bubble.me { color: #151513; }
+.composer { border-top: 1px solid var(--line); background: var(--card); padding: 14px 28px 18px; }
+.composer-in { max-width: 760px; margin: 0 auto; display: flex; align-items: center; gap: 10px; border: 1px solid var(--line-strong); border-radius: var(--r-md); padding: 8px 8px 8px 14px; }
+.composer-in input { border: none; background: none; outline: none; flex: 1; font-size: 14px; font-family: var(--font-body); color: var(--ink); }
+.sess { padding: 9px 11px; border-radius: var(--r-sm); font-size: 13px; color: var(--ink-2); cursor: pointer; }
+.sess:hover { background: var(--sunken); color: var(--ink); }
+.sess.is-on { background: var(--accent-soft); color: var(--accent-ink); }
+
+.set-grid { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 26px; align-items: start; }
+.set-nav button {
+  display: block; width: 100%; text-align: left; border: none; background: none; cursor: pointer;
+  padding: 8px 11px; border-radius: var(--r-sm); color: var(--ink-2); font-family: var(--font-body); font-size: 13.5px;
+}
+.set-nav button:hover { background: var(--sunken); color: var(--ink); }
+.set-nav button.is-on { background: var(--accent-soft); color: var(--accent-ink); }
+.savebar { position: sticky; bottom: 0; display: flex; gap: 10px; justify-content: flex-end; background: linear-gradient(180deg, transparent, var(--paper) 40%); padding-top: 14px; }
+
+.toast {
+  position: absolute; right: 26px; bottom: 26px; background: var(--ink); color: var(--paper);
+  border-radius: var(--r-sm); padding: 11px 16px; font-size: 13px; box-shadow: var(--shadow-2);
+  opacity: 0; transform: translateY(8px); transition: all var(--dur) var(--ease); pointer-events: none;
+}
+.toast.on { opacity: 1; transform: none; }
+
+.tweaks {
+  position: fixed; right: 18px; bottom: 18px; width: 244px; z-index: 60; background: var(--card);
+  border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--shadow-2); padding: 16px;
+  font-size: 13px; display: none;
+}
+.tweaks.on { display: block; }
+.tweaks h4 { margin: 0 0 12px; font-size: 14px; }
+.tk-row { margin-bottom: 11px; }
+.tk-row > span { display: block; color: var(--ink-3); font-size: 12px; margin-bottom: 5px; }
+.tk-opts { display: flex; gap: 6px; flex-wrap: wrap; }
+.tk-opts button {
+  border: 1px solid var(--line-strong); background: transparent; color: var(--ink); border-radius: var(--pill);
+  padding: 5px 10px; font-size: 12px; cursor: pointer; font-family: var(--font-body);
+}
+.tk-opts button.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.tk-fab { position: fixed; right: 18px; bottom: 18px; z-index: 61; border: none; cursor: pointer; background: var(--ink); color: var(--paper); border-radius: var(--pill); padding: 10px 16px; font-family: var(--font-display); font-size: 14px; box-shadow: var(--shadow-2); }
+</style>
+</head>
+<body data-accent="lime" data-density="comfy" data-motion="on">
+
+<div class="win" id="win">
+  <div class="win-bar"><i></i><i></i><i></i><span>知食 NutriMind — localhost:8000</span></div>
+
+  <div class="app">
+    <aside class="rail">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div class="brand-txt"><div style="font-family:var(--font-display);font-size:15px">知食 NutriMind</div><div class="tiny muted" style="font-size:11px">AI 减重教练</div></div>
+      </div>
+      <nav id="railNav">
+        <button class="nav-item is-on" data-go="d-home"><i class="nav-ico"></i><span class="nav-label">工作台</span></button>
+        <button class="nav-item" data-go="d-diet"><i class="nav-ico"></i><span class="nav-label">饮食记录</span></button>
+        <button class="nav-item" data-go="d-ai"><i class="nav-ico"></i><span class="nav-label">AI 助手</span></button>
+        <button class="nav-item" data-go="d-stats"><i class="nav-ico"></i><span class="nav-label">数据分析</span></button>
+        <button class="nav-item" data-go="d-set"><i class="nav-ico"></i><span class="nav-label">设置与目标</span></button>
+      </nav>
+      <div class="rail-foot">
+        <button class="rail-collapse" id="railToggle">收起侧栏</button>
+        <div style="display:flex;align-items:center;gap:9px;padding:8px">
+          <div class="avatar">Z</div>
+          <div class="who"><div style="font-size:13px">阿泽</div><div class="tiny muted">还有 6.4kg</div></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="crumb">今日 / <b id="crumbNow">9月29日 周二</b></div>
+        <div class="spacer"></div>
+        <div class="search" id="cmdK"><span>搜索食物、记录或问 AI…</span><kbd>⌘K</kbd></div>
+        <button class="icon-btn" id="themeBtn" title="切换主题">◐</button>
+        <div class="avatar">Z</div>
+      </header>
+
+      <div class="views" id="views">
+
+        <section class="view is-on" id="d-home">
+          <div class="wrap">
+            <div class="hero">
+              <div class="ring">
+                <svg width="150" height="150" viewBox="0 0 150 150" role="img" aria-label="今日能量进度">
+                  <title>已摄入 1240 千卡，目标 1900 千卡</title>
+                  <circle cx="75" cy="75" r="64" fill="none" stroke="var(--sunken)" stroke-width="14" />
+                  <circle class="ring-arc" id="ringArc" cx="75" cy="75" r="64" fill="none" stroke="var(--accent)" stroke-width="14" stroke-linecap="round" stroke-dasharray="402" stroke-dashoffset="402" />
+                </svg>
+                <div class="ring-lab"><b class="num">1240</b><span class="tiny muted">已摄入 kcal</span></div>
+              </div>
+              <div>
+                <h1 style="font-size:26px">今天还能吃 <span class="num">660</span> kcal</h1>
+                <p class="muted" style="margin:6px 0 0">≈ 一个苹果（95）+ 一份无糖酸奶（110）+ 一勺坚果（120），剩下靠晚餐补足。按当前进度，预计 10 月 12 日能到 78kg。</p>
+                <div class="stat-line">
+                  <div><b class="num">79.4→78.6</b><span>近 7 天体重 kg</span></div>
+                  <div><b class="num">14</b><span>连续打卡 天</span></div>
+                  <div><b class="num">-0.8</b><span>本周体重 kg</span></div>
+                  <div><b class="num">1900</b><span>目标摄入 kcal</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="quick">
+              <button class="qcard" onclick="toast('打开系统相册 / 或直接把照片拖到这里')"><i class="q-ico">◎</i><b>拍照记录</b><span class="tiny muted">支持拖拽 · Ctrl+V 粘贴</span></button>
+              <button class="qcard" onclick="nav('d-diet')"><i class="q-ico">✎</i><b>文字 / 搜索记录</b><span class="tiny muted">常用餐一键复用</span></button>
+              <button class="qcard" onclick="toast('已复制昨日午餐：杂粮饭 + 鸡胸 + 西兰花')"><i class="q-ico">⟲</i><b>复制昨日午餐</b><span class="tiny muted">520 kcal</span></button>
+            </div>
+
+            <div class="grid-home" style="margin-top:18px">
+              <div style="display:grid;gap:18px">
+                <div class="card">
+                  <div class="card-h"><h3>今日餐次</h3><span class="note">点击行即可就地补录 · 缺失餐次会提示</span></div>
+                  <div class="rows">
+                    <div class="row-item"><i class="dot done"></i><div style="flex:1"><b>早餐</b> · 燕麦粥、水煮蛋、豆浆</div><span class="muted num">420 kcal</span></div>
+                    <div class="row-item"><i class="dot done"></i><div style="flex:1"><b>午餐</b> · 杂粮饭、清蒸鸡胸、白灼西兰花</div><span class="muted num">412 kcal</span></div>
+                    <div class="row-item is-sel"><i class="dot"></i><div style="flex:1"><b>晚餐</b> · 建议 560 kcal</div><span class="btn btn-quiet" style="padding:5px 12px;min-height:30px">去记录</span></div>
+                    <div class="row-item"><i class="dot"></i><div style="flex:1"><b>加餐</b> · 可选 300 kcal</div><span class="muted tiny">未安排</span></div>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-h"><h3>三大营养素</h3><span class="note">每餐占比可在数据页对比</span></div>
+                  <div class="bar-row"><span class="muted">蛋白质</span><div class="bar-track"><div class="bar-fill" style="width:72%"></div></div><span class="num">68 / 95g</span></div>
+                  <div class="bar-row"><span class="muted">碳水</span><div class="bar-track"><div class="bar-fill" style="width:66%;background:var(--terracotta)"></div></div><span class="num">140 / 210g</span></div>
+                  <div class="bar-row"><span class="muted">脂肪</span><div class="bar-track"><div class="bar-fill" style="width:67%;background:var(--olive)"></div></div><span class="num">42 / 63g</span></div>
+                  <div style="margin-top:14px;display:flex;gap:10px">
+                    <button class="btn btn-ghost">查看完整营养分析 →</button>
+                    <button class="btn btn-quiet">饮水 1200 / 2800ml　+200</button>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:grid;gap:18px">
+                <div class="card" style="background:var(--accent-soft);border-color:var(--accent)">
+                  <div class="card-h"><h3 style="color:var(--accent-ink)">今日洞察</h3></div>
+                  <p style="margin:0;color:var(--ink);font-size:14px">本周有 4 天晚餐占比超过 42%，且都在 20:30 之后。把晚餐主食挪一半到午餐，预计每餐能自然减少约 120 kcal。</p>
+                  <button class="btn btn-primary" style="margin-top:14px">按此调整今日计划</button>
+                </div>
+
+                <div class="card">
+                  <div class="card-h"><h3>今日 AI 食谱</h3><span class="note">已按忌口生成</span></div>
+                  <div class="rows">
+                    <div class="row-item"><i class="dot done"></i><div style="flex:1">早餐 · 燕麦碗 + 无糖豆浆</div><span class="muted num">420</span></div>
+                    <div class="row-item"><i class="dot"></i><div style="flex:1">午餐 · 鸡胸杂粮饭套餐</div><span class="muted num">600</span></div>
+                    <div class="row-item"><i class="dot"></i><div style="flex:1">晚餐 · 香煎龙利鱼配时蔬</div><span class="muted num">560</span></div>
+                  </div>
+                  <div style="display:flex;gap:10px;margin-top:14px">
+                    <button class="btn btn-primary" style="flex:1">一键写入今日计划</button>
+                    <button class="btn btn-ghost">重新生成</button>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-h"><h3>最近称重</h3><span class="note">鼠标悬停可看当日明细</span></div>
+                  <div style="display:flex;align-items:baseline;gap:8px"><b style="font-family:var(--font-display);font-size:26px" class="num">78.6</b><span class="muted">kg · 较昨日 <span class="down">-0.1</span></span></div>
+                  <svg id="miniSpark" viewBox="0 0 300 60" style="width:100%;height:60px;margin-top:10px" role="img" aria-label="近 14 天体重迷你走势"></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="d-diet">
+          <div class="wrap">
+            <div class="split">
+              <div class="card">
+                <div class="card-h">
+                  <h3>饮食记录</h3>
+                  <div class="chips" style="margin-left:auto">
+                    <button class="chip is-on">早餐</button><button class="chip">午餐</button><button class="chip">晚餐</button><button class="chip">加餐</button>
+                  </div>
+                </div>
+                <div class="dropzone" id="drop">把食物照片拖到这里，或按 <kbd>Ctrl</kbd>+<kbd>V</kbd> 粘贴识别</div>
+                <div class="rows" id="foodRows">
+                  <div class="row-item is-sel" data-k="0">
+                    <div style="width:40px;height:40px;border-radius:10px;background:var(--sunken);border:1px dashed var(--line-strong)"></div>
+                    <div style="flex:1"><b>杂粮饭</b> · 150g<div class="tiny muted">碳水 41g · 蛋白 4.5g</div></div>
+                    <span class="num">195</span>
+                  </div>
+                  <div class="row-item" data-k="1">
+                    <div style="width:40px;height:40px;border-radius:10px;background:var(--sunken);border:1px dashed var(--line-strong)"></div>
+                    <div style="flex:1"><b>清蒸鸡胸肉</b> · 120g<div class="tiny muted">蛋白 31g · 脂肪 3.6g</div></div>
+                    <span class="num">165</span>
+                  </div>
+                  <div class="row-item" data-k="2">
+                    <div style="width:40px;height:40px;border-radius:10px;background:var(--sunken);border:1px dashed var(--line-strong)"></div>
+                    <div style="flex:1"><b>白灼西兰花</b> · 150g<div class="tiny muted">纤维 3.8g</div></div>
+                    <span class="num">51</span>
+                  </div>
+                  <div class="row-item" data-k="3">
+                    <div style="width:40px;height:40px;border-radius:10px;background:var(--sunken);border:1px dashed var(--line-strong)"></div>
+                    <div style="flex:1"><b>圣女果 ×2</b> · 300g<div class="tiny muted">糖 9g</div></div>
+                    <span class="num">66</span>
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+                  <span class="muted tiny">选中行后在右侧直接编辑，不用弹窗</span>
+                  <span>合计 <b class="num" style="font-family:var(--font-display);font-size:17px">477</b> kcal</span>
+                </div>
+              </div>
+
+              <div class="card" style="position:sticky;top:0">
+                <div class="card-h"><h3 id="detailName">杂粮饭</h3><span class="note">正在编辑</span></div>
+                <div class="field"><span class="muted">食物</span><input type="text" id="detailInput" value="杂粮饭" /></div>
+                <div class="field"><span class="muted">份量</span><select><option>一碗 150g</option><option>100g</option><option>小碗 100g</option></select></div>
+                <div class="field"><span class="muted">数量</span><div class="stepper"><button onclick="qty(-1)">−</button><span class="num" id="qtyVal">1</span><button onclick="qty(1)">+</button></div></div>
+                <div class="field"><span class="muted">热量</span><span class="num" id="detailCal">195 kcal</span></div>
+                <div class="field"><span class="muted">碳水</span><span class="num">41.0 g</span></div>
+                <div class="field"><span class="muted">蛋白质</span><span class="num">4.5 g</span></div>
+                <div class="field"><span class="muted">数据来源</span><span class="tiny">用户自定义 · 置信度高</span></div>
+                <div style="display:flex;gap:10px;margin-top:16px">
+                  <button class="btn btn-primary" style="flex:1">保存</button>
+                  <button class="btn btn-ghost">删除</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view flush" id="d-ai">
+          <div class="ai-app">
+            <aside class="col-side">
+              <button class="btn btn-primary btn-block" style="margin-bottom:14px">+ 新建对话</button>
+              <div class="tiny muted" style="margin-bottom:8px">最近</div>
+              <div class="sess is-on">晚餐还能吃什么</div>
+              <div class="sess">平台期如何突破</div>
+              <div class="sess">这份外卖热量多少</div>
+              <div class="sess">周末外食策略</div>
+              <div class="tiny muted" style="margin:16px 0 8px">记忆库 · 4 条</div>
+              <div class="sess">不吃内脏 · 乳糖不耐</div>
+              <div class="sess">工作日 20:30 后吃晚餐</div>
+            </aside>
+
+            <div class="msg-col">
+              <div class="msgs">
+                <div class="reading" style="display:flex;flex-direction:column;gap:16px">
+                  <div class="bubble me">我晚上想吃火锅，会不会超标？</div>
+                  <div class="bubble ai">可以吃，关键在顺序和蘸料：<br>1. 先涮蔬菜菌菇垫底<br>2. 蛋白质选虾滑、嫩牛肉，避开午餐肉<br>3. 蘸料换成醋 + 蒜泥 + 小米辣，别用麻酱<br><br>按 18:30 吃、控制在 700 kcal 内算，你今天还剩 <span class="num">660</span> kcal，建议把午餐主食减 1/3。</div>
+                </div>
+              </div>
+              <div class="composer">
+                <div class="reading" style="padding:0;margin-bottom:10px;display:flex;gap:8px">
+                  <button class="chip" onclick="toast('已附加快照：今日午后加餐')">换个 dinner 方案</button>
+                  <button class="chip">帮我算这份外卖</button>
+                  <button class="chip">生成明天三餐</button>
+                </div>
+                <div class="composer-in">
+                  <input placeholder="说说今天的饮食或疑问…" />
+                  <button class="btn btn-primary" style="min-height:32px;padding:6px 14px">发送</button>
+                </div>
+                <div class="tiny muted" style="max-width:760px;margin:8px auto 0">按 <kbd>Enter</kbd> 发送 · <kbd>Shift</kbd>+<kbd>Enter</kbd> 换行 · 可直接粘贴图片提问</div>
+              </div>
+            </div>
+
+            <aside class="col-side">
+              <div class="tiny muted" style="margin-bottom:10px">今日上下文</div>
+              <div class="card" style="padding:12px;box-shadow:none">
+                <div style="display:flex;justify-content:space-between"><span class="tiny muted">已摄入</span><b class="num">1240</b></div>
+                <div style="display:flex;justify-content:space-between"><span class="tiny muted">剩余</span><b class="num">660</b></div>
+                <div style="display:flex;justify-content:space-between"><span class="tiny muted">蛋白缺口</span><b class="num">27g</b></div>
+              </div>
+              <div class="tiny muted" style="margin:16px 0 8px">AI 已参考</div>
+              <div class="sess">目标 1900 kcal · 自适应</div>
+              <div class="sess">近 14 天体重趋势</div>
+              <div class="sess">忌口：内脏 / 奶制品</div>
+              <div class="tiny muted" style="margin:16px 0 8px">模型</div>
+              <select style="font-size:12px"><option>文字 glm-4-flash</option><option>文字 GPT-4o-mini（兼容端点）</option></select>
+            </aside>
+          </div>
+        </section>
+
+        <section class="view" id="d-stats">
+          <div class="wrap">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+              <h2 style="font-size:20px">数据分析</h2>
+              <div class="chips" style="margin-left:auto">
+                <button class="chip">周</button><button class="chip is-on">月</button><button class="chip">季</button><button class="chip">年</button>
+              </div>
+              <button class="btn btn-ghost">导出 CSV</button>
+              <button class="btn btn-quiet">导出周报图</button>
+            </div>
+
+            <div class="kpis">
+              <div class="kpi"><b class="num">78.6</b><span class="k">当前体重 kg</span><div class="delta down">较月初 -1.4</div></div>
+              <div class="kpi"><b class="num">1620</b><span class="k">日均摄入 kcal</span><div class="delta up">低于目标 12%</div></div>
+              <div class="kpi"><b class="num">2280</b><span class="k">实测 TDEE kcal</span><div class="delta up">比公式值 +80</div></div>
+              <div class="kpi"><b class="num">68%</b><span class="k">蛋白质达标率</span><div class="delta down">缺口集中在晚餐</div></div>
+            </div>
+
+            <div class="grid-charts">
+              <div style="display:grid;gap:18px">
+                <div class="card">
+                  <div class="card-h"><h3>体重趋势</h3><span class="note">细线为每日实测，粗线为 7 日去噪后的真实走向</span></div>
+                  <svg id="chartWeight" viewBox="0 0 620 200" style="width:100%;height:200px" role="img" aria-label="近 30 天体重趋势与目标线"></svg>
+                  <div class="tiny muted" style="margin-top:6px">按当前斜率，预计 <b>10 月 12 日</b> 达成 78kg（区间 10/08–10/17）</div>
+                </div>
+                <div class="card">
+                  <div class="card-h"><h3>每日热量缺口</h3><span class="note">摄入 vs 消耗 vs 目标</span></div>
+                  <svg id="chartGap" viewBox="0 0 620 180" style="width:100%;height:180px" role="img" aria-label="近 7 天热量缺口柱状图"></svg>
+                </div>
+              </div>
+
+              <div style="display:grid;gap:18px">
+                <div class="card">
+                  <div class="card-h"><h3>营养素达成</h3></div>
+                  <div class="bar-row"><span class="muted">蛋白质</span><div class="bar-track"><div class="bar-fill" style="width:68%"></div></div><span class="num">68%</span></div>
+                  <div class="bar-row"><span class="muted">碳水</span><div class="bar-track"><div class="bar-fill" style="width:82%;background:var(--terracotta)"></div></div><span class="num">82%</span></div>
+                  <div class="bar-row"><span class="muted">脂肪</span><div class="bar-track"><div class="bar-fill" style="width:74%;background:var(--olive)"></div></div><span class="num">74%</span></div>
+                  <div class="bar-row"><span class="muted">纤维</span><div class="bar-track"><div class="bar-fill" style="width:55%;background:var(--ink-3)"></div></div><span class="num">55%</span></div>
+                </div>
+                <div class="card">
+                  <div class="card-h"><h3>自动洞察</h3></div>
+                  <div class="rows">
+                    <div class="row-item"><i class="dot done"></i><div style="flex:1">工作日晚餐平均 <b>20:40</b>，占全日 44%</div></div>
+                    <div class="row-item"><i class="dot"></i><div style="flex:1">周末日均摄入高出 workday <b>310 kcal</b></div></div>
+                    <div class="row-item"><i class="dot"></i><div style="flex:1">纤维连续 2 周不达标，建议早餐加燕麦/奇亚籽</div></div>
+                    <div class="row-item"><i class="dot done"></i><div style="flex:1">饮水达标率 86%，是近两月最好</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="d-set">
+          <div class="wrap">
+            <h2 style="font-size:20px;margin-bottom:16px">设置与目标</h2>
+            <div class="set-grid">
+              <div class="set-nav">
+                <button class="is-on">目标与计划</button>
+                <button>营养目标</button>
+                <button>偏好与忌口</button>
+                <button>模型配置</button>
+                <button>通知与提醒</button>
+                <button>数据与隐私</button>
+              </div>
+              <div class="card">
+                <div class="card-h"><h3>目标与计划</h3><span class="note">目标由系统自动校准，可随时锁定</span></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                  <div><div class="tiny muted">起始体重</div><div style="display:flex;align-items:baseline;gap:4px"><b class="num" style="font-family:var(--font-display);font-size:20px">80.0</b><span class="muted tiny">kg</span></div></div>
+                  <div><div class="tiny muted">目标体重</div><div style="display:flex;align-items:baseline;gap:4px"><b class="num" style="font-family:var(--font-display);font-size:20px">72.0</b><span class="muted tiny">kg</span></div></div>
+                  <div><div class="tiny muted">减重速率</div><div style="display:flex;align-items:baseline;gap:4px"><b class="num" style="font-family:var(--font-display);font-size:20px">0.8</b><span class="muted tiny">% / 周</span></div></div>
+                  <div><div class="tiny muted">推荐摄入</div><div style="display:flex;align-items:baseline;gap:4px"><b class="num" style="font-family:var(--font-display);font-size:20px">1900</b><span class="muted tiny">kcal</span></div></div>
+                </div>
+                <div class="field" style="margin-top:12px"><span class="muted">目标模式</span><select><option>自动校准（每周一更新，限幅 ±150 kcal）</option><option>手动锁定</option></select></div>
+                <div class="field"><span class="muted">实测 TDEE</span><span class="num">2280 kcal · 基于近 21 天反推</span></div>
+                <div class="field"><span class="muted">上次校准</span><span>9月28日 · 体重斜率 -0.19kg/周 → 摄入 +80 kcal</span></div>
+                <div class="field"><span class="muted">健康护栏</span><span class="tiny">速率上限 1%/周 · 摄入下限 1500 kcal / 1200 kcal（女）</span></div>
+                <div class="savebar">
+                  <button class="btn btn-ghost">回滚到上次目标</button>
+                  <button class="btn btn-primary">保存</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+  <div class="toast" id="toast">提示</div>
+</div>
+
+<button class="tk-fab" id="tkFab">Tweaks</button>
+<div class="tweaks" id="tweaks">
+  <h4>Tweaks</h4>
+  <div class="tk-row"><span>主题</span><div class="tk-opts" data-key="theme"><button class="on" data-v="light">浅色</button><button data-v="dark">深色</button></div></div>
+  <div class="tk-row"><span>强调色</span><div class="tk-opts" data-key="accent"><button class="on" data-v="lime">青柠</button><button data-v="olive">橄榄</button><button data-v="terracotta">陶土</button></div></div>
+  <div class="tk-row"><span>侧栏</span><div class="tk-opts" data-key="rail"><button class="on" data-v="open">展开</button><button data-v="collapsed">收起</button></div></div>
+  <div class="tk-row"><span>密度</span><div class="tk-opts" data-key="density"><button class="on" data-v="comfy">舒适</button><button data-v="dense">紧凑</button></div></div>
+  <div class="tk-row" style="margin-bottom:0"><span>动效</span><div class="tk-opts" data-key="motion"><button class="on" data-v="on">开</button><button data-v="off">关</button></div></div>
+</div>
+
+<script>
+function nav(id) {
+  document.querySelectorAll('.view').forEach(function (v) { v.classList.remove('is-on'); });
+  document.getElementById(id).classList.add('is-on');
+  document.querySelectorAll('#railNav .nav-item').forEach(function (b) {
+    b.classList.toggle('is-on', b.dataset.go === id);
+  });
+  var map = { 'd-home': '今日', 'd-diet': '饮食记录', 'd-ai': 'AI 助手', 'd-stats': '数据分析', 'd-set': '设置' };
+  document.getElementById('crumbNow').textContent = map[id] + ' · 9月29日';
+  document.getElementById('views').scrollTop = 0;
+  if (id === 'd-stats') drawStats();
+}
+document.querySelectorAll('#railNav .nav-item').forEach(function (b) {
+  b.addEventListener('click', function () { nav(b.dataset.go); });
+});
+
+function ring(ratio) {
+  var c = 402.1;
+  document.getElementById('ringArc').setAttribute('stroke-dashoffset', String(c * (1 - ratio)));
+}
+requestAnimationFrame(function () { ring(1240 / 1900); });
+
+var t;
+function toast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('on');
+  clearTimeout(t); t = setTimeout(function () { el.classList.remove('on'); }, 2200);
+}
+
+document.getElementById('cmdK').addEventListener('click', function () { toast('⌘K：全局搜索食物 / 记录 / 历史问答'); });
+document.getElementById('railToggle').addEventListener('click', function () {
+  document.body.classList.toggle('rail-collapsed');
+  document.getElementById('railToggle').textContent = document.body.classList.contains('rail-collapsed') ? '展开' : '收起侧栏';
+});
+document.getElementById('themeBtn').addEventListener('click', function () {
+  var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  document.querySelectorAll('[data-key="theme"] button').forEach(function (b) {
+    b.classList.toggle('on', b.dataset.v === next);
+  });
+});
+
+var foods = [
+  { name: '杂粮饭', cal: 195, sub: '碳水 41g · 蛋白 4.5g' },
+  { name: '清蒸鸡胸肉', cal: 165, sub: '蛋白 31g · 脂肪 3.6g' },
+  { name: '白灼西兰花', cal: 51, sub: '纤维 3.8g' },
+  { name: '圣女果 ×2', cal: 66, sub: '糖 9g' }
+];
+var qtyN = 1;
+document.querySelectorAll('#foodRows .row-item').forEach(function (r) {
+  r.addEventListener('click', function () {
+    document.querySelectorAll('#foodRows .row-item').forEach(function (x) { x.classList.remove('is-sel'); });
+    r.classList.add('is-sel');
+    var f = foods[+r.dataset.k]; qtyN = 1;
+    document.getElementById('detailName').textContent = f.name;
+    document.getElementById('detailInput').value = f.name;
+    document.getElementById('qtyVal').textContent = '1';
+    document.getElementById('detailCal').textContent = f.cal + ' kcal';
+  });
+});
+function qty(d) {
+  qtyN = Math.max(1, qtyN + d);
+  document.getElementById('qtyVal').textContent = String(qtyN);
+  var cal = 195 * qtyN;
+  document.getElementById('detailCal').textContent = cal + ' kcal';
+}
+
+var dz = document.getElementById('drop');
+dz.addEventListener('click', function () { toast('已打开本地图片选择器'); });
+['dragenter', 'dragover'].forEach(function (e) {
+  dz.addEventListener(e, function (ev) { ev.preventDefault(); dz.classList.add('on'); });
+});
+['dragleave', 'drop'].forEach(function (e) {
+  dz.addEventListener(e, function (ev) { ev.preventDefault(); dz.classList.remove('on'); });
+});
+document.addEventListener('keydown', function (e) {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); toast('⌘K：全局搜索已唤起'); }
+});
+
+document.querySelectorAll('.set-nav button').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.set-nav button').forEach(function (x) { x.classList.remove('is-on'); });
+    b.classList.add('is-on'); toast('已切换到「' + b.textContent + '」面板');
+  });
+});
+document.querySelectorAll('.chips .chip').forEach(function (c) {
+  c.addEventListener('click', function () {
+    c.parentElement.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('is-on'); });
+    c.classList.add('is-on');
+  });
+});
+
+document.querySelectorAll('.tweaks .tk-opts').forEach(function (g) {
+  var key = g.dataset.key;
+  g.querySelectorAll('button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      g.querySelectorAll('button').forEach(function (b) { b.classList.remove('on'); });
+      btn.classList.add('on');
+      var v = btn.dataset.v;
+      if (key === 'theme') document.documentElement.setAttribute('data-theme', v);
+      if (key === 'accent') document.body.setAttribute('data-accent', v);
+      if (key === 'density') document.body.setAttribute('data-density', v);
+      if (key === 'motion') document.body.setAttribute('data-motion', v);
+      if (key === 'rail') document.body.classList.toggle('rail-collapsed', v === 'collapsed');
+    });
+  });
+});
+document.getElementById('tkFab').addEventListener('click', function () {
+  document.getElementById('tweaks').classList.toggle('on');
+});
+
+function polyline(values, w, h, pad, min, max) {
+  return values.map(function (v, i) {
+    var x = pad + i * ((w - pad * 2) / (values.length - 1));
+    var y = h - pad - ((v - min) / (max - min)) * (h - pad * 2);
+    return [x, y];
+  });
+}
+
+function drawSpark() {
+  var el = document.getElementById('miniSpark');
+  if (!el || el.dataset.done) return;
+  el.dataset.done = '1';
+  var vals = [79.4, 79.2, 79.3, 79.0, 78.9, 79.1, 78.8, 78.7, 78.9, 78.6, 78.5, 78.7, 78.6, 78.6];
+  var pts = polyline(vals, 300, 60, 8, 78.3, 79.6);
+  var d = pts.map(function (p, i) { return (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' ');
+  el.insertAdjacentHTML('beforeend',
+    '<path d="' + d + ' L292 56 L8 56 Z" fill="var(--accent-soft)"/>' +
+    '<path d="' + d + '" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>');
+}
+drawSpark();
+
+function drawStats() {
+  var cw = document.getElementById('chartWeight');
+  if (cw && !cw.dataset.done) {
+    cw.dataset.done = '1';
+    var vals = [], i;
+    for (i = 0; i < 30; i++) {
+      vals.push(79.6 - i * 0.045 + Math.sin(i / 2.4) * 0.22 + (i % 5 === 0 ? 0.15 : 0));
+    }
+    var min = 77.5, max = 80.2, W = 620, H = 200, pad = 18;
+    var pts = polyline(vals, W, H, pad, min, max);
+    var d = pts.map(function (p, n) { return (n ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' ');
+    var smooth = [], k;
+    for (k = 0; k < vals.length; k++) {
+      var win = vals.slice(Math.max(0, k - 3), k + 4);
+      smooth.push(win.reduce(function (a, b) { return a + b; }, 0) / win.length);
+    }
+    var spts = polyline(smooth, W, H, pad, min, max);
+    var sd = spts.map(function (p, n) { return (n ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' ');
+    var ty = H - pad - ((72 - min) / (max - min)) * (H - pad * 2);
+    cw.insertAdjacentHTML('beforeend',
+      '<line x1="18" y1="' + ty.toFixed(1) + '" x2="602" y2="' + ty.toFixed(1) + '" stroke="var(--terracotta)" stroke-width="1.5" stroke-dasharray="6 5"/>' +
+      '<path d="' + d + '" fill="none" stroke="var(--line-strong)" stroke-width="1.4"/>' +
+      '<path d="' + sd + '" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+      pts.slice(-1).map(function (p) { return '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="4.5" fill="var(--card)" stroke="var(--accent)" stroke-width="2.5"/>'; }).join('') +
+      '<text x="18" y="16" font-size="11" fill="var(--ink-3)">80kg</text>' +
+      '<text x="18" y="' + (H - 4) + '" font-size="11" fill="var(--ink-3)">77.5kg</text>' +
+      '<text x="560" y="16" font-size="11" fill="var(--ink-3)">9/01 → 9/29</text>');
+  }
+
+  var cg = document.getElementById('chartGap');
+  if (cg && !cg.dataset.done) {
+    cg.dataset.done = '1';
+    var wk = [1131, 734, 584, 595, 848, 749, 738];
+    var burn = [2280, 2310, 2260, 2150, 2340, 2290, 2270];
+    var W2 = 620, H2 = 180, bw = 46, gap = 30, base = H2 - 26;
+    var html = '<line x1="10" y1="' + base + '" x2="610" y2="' + base + '" stroke="var(--line)"/>';
+    wk.forEach(function (v, n) {
+      var x = 20 + n * (bw * 2 + gap);
+      var hIn = Math.max(4, (v / 2600) * 130);
+      var hOut = Math.max(4, (burn[n] / 2600) * 130);
+      html += '<rect x="' + x + '" y="' + (base - hIn) + '" width="' + bw + '" height="' + hIn + '" rx="5" fill="var(--accent)"/>';
+      html += '<rect x="' + (x + bw + 2) + '" y="' + (base - hOut) + '" width="' + bw + '" height="' + hOut + '" rx="5" fill="var(--line-strong)"/>';
+      html += '<text x="' + (x + bw) + '" y="' + (H2 - 8) + '" font-size="10" fill="var(--ink-3)" text-anchor="middle">' + (n + 1) + '</text>';
+    });
+    html += '<circle cx="600" cy="20" r="6" fill="var(--accent)"/><text x="590" y="24" font-size="11" fill="var(--ink-2)" text-anchor="end">摄入</text>';
+    html += '<circle cx="600" cy="38" r="6" fill="var(--line-strong)"/><text x="590" y="42" font-size="11" fill="var(--ink-2)" text-anchor="end">消耗</text>';
+    cg.insertAdjacentHTML('beforeend', html);
+  }
+}
+
+function fit() {
+  var w = document.getElementById('win');
+  var scale = Math.min(1, (window.innerWidth - 48) / 1400);
+  w.style.transform = 'scale(' + scale + ')';
+  w.style.height = (880 * scale) + 'px';
+  w.style.marginBottom = (-(880 - 880 * scale)) + 'px';
+}
+fit();
+window.addEventListener('resize', fit);
+</script>
+</body>
+</html>

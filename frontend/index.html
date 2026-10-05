@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#FBF7F0" />
+    <meta
+      name="description"
+      content="知食 NutriMind · AI 饮食教练：15 秒完成一餐记录，自适应代谢校准，把记录翻译成每天一条可执行建议。"
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- PWA：可安装 + 离线应用壳（Service Worker 在生产构建中注册） -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="知食" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <!-- 不依赖外部 Web Font：系统中文黑体可保证离线与首屏稳定，
+         同时避免工业几何字库（Chakra Petch / JetBrains Mono）带来的工具感 -->
+    <title>知食 NutriMind · 看懂你怎么吃</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,194 @@
+// =============================================================
+//  知食 · 设计系统  ——  「温润生机 · Warm Humanist」
+//  暖白纸感底 + 青柠唯一强调色 + 圆润几何 + 温和正向反馈
+//  设计意图：把产品从「交易终端」语汇换成「每天被打开 3-5 次的生活伴侣」。
+//  层级由字号与留白决定，不再依赖卡片描边与边缘亮线；装饰成本降到 0。
+//
+//  默认浅色（纸质暖白），深色为可切换的第二皮肤（暖性深褐，非纯黑）。
+//  变量名与旧版保持一致，现有组件无需改动即可继承新视觉。
+// =============================================================
+
+// ---------- 字体 ----------
+// 不加载外部 Web Font：在线失败会退化成难看的 fallback，
+// 这里统一用系统中文黑体栈，配合字重与字号建立层级。
+@font-display: 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei UI', 'Noto Sans SC',
+  -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+@font-body: 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei UI', 'Noto Sans SC',
+  -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+@font-mono: @font-body; // 移除等宽字体的工业感，数字改用 tabular-nums 对齐
+
+// ---------- 布局尺寸 ----------
+@rail-w: 78px; // 侧栏折叠宽度
+@rail-w-open: 240px; // 侧栏展开宽度
+@topbar-h: 58px;
+@content-max: 1320px;
+
+// ---------- 圆角（比旧版更圆，弱化"IT 工具"观感） ----------
+@r-sm: 10px;
+@r-md: 14px;
+@r-lg: 20px;
+@r-xl: 28px;
+
+// ---------- 动效（克制：只服务状态反馈） ----------
+@ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+@ease: cubic-bezier(0.4, 0, 0.2, 1);
+@dur-fast: 180ms;
+@dur: 280ms;
+@dur-slow: 420ms;
+
+// ---------- 强调色（青柠，唯一强调色） ----------
+@lime: #c6f24e; // 仅用于填充：主按钮、进度条、完成态
+@lime-2: #b4e63a;
+@on-lime: #23231f; // 青柠底上的文字色
+
+// =============================================================
+//  主题令牌
+// =============================================================
+
+// 浅色（默认）：暖白纸感
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #fbf7f0; // 纸白
+  --bg-2: #f4eee4; // 沉底
+  --surface: #ffffff; // 卡片
+  --surface-2: #f8f3ea; // 卡片内二级面
+  --hover: #f1ebe0;
+
+  --border: rgba(35, 35, 31, 0.09);
+  --border-2: rgba(35, 35, 31, 0.16);
+
+  --text-1: #23231f; // 墨（正文，对纸白 ≈ 13:1）
+  --text-2: #6e6a60; // 次级文字（≈ 5.4:1，过 AA）
+  --text-3: #9c958a; // 三级 / 占位
+
+  // 青柠只做填充与进度；需要出现在文字上时改用可读的深橄榄
+  --lime: @lime;
+  --lime-2: @lime-2;
+  --lime-ink: #567013;
+  --on-lime: @on-lime;
+  --lime-soft: rgba(198, 242, 78, 0.4);
+
+  --olive: #4f6b2a; // 语义辅色：达标 / 正向
+  --olive-soft: rgba(79, 107, 42, 0.12);
+  --clay: #c97a45; // 语义辅色：提醒 / 待补
+  --clay-soft: rgba(201, 122, 69, 0.14);
+  --sky: #4a8fa8; // 语义辅色：数据 / 中性信息
+  --sky-soft: rgba(74, 143, 168, 0.14);
+  --violet: #7a6cc4;
+
+  --orange: var(--clay);
+  --orange-soft: var(--clay-soft);
+  --cyan: var(--sky);
+  --cyan-soft: var(--sky-soft);
+  --green: var(--olive);
+  --red: #c1502e; // 告警（陶土红，避免正红刺眼）
+  --red-soft: rgba(193, 80, 46, 0.12);
+
+  // 装饰强度：这一版不要网格肌理与颗粒噪点
+  --grid-line: transparent;
+  --grain-opacity: 0;
+
+  --shadow-1: 0 1px 2px rgba(74, 58, 30, 0.05), 0 2px 10px rgba(74, 58, 30, 0.05);
+  --shadow-2: 0 6px 18px rgba(74, 58, 30, 0.08), 0 2px 6px rgba(74, 58, 30, 0.04);
+  --shadow-3: 0 18px 48px rgba(74, 58, 30, 0.12);
+  --glow-lime: 0 6px 18px rgba(150, 190, 50, 0.28);
+
+  --topbar-bg: rgba(251, 247, 240, 0.86);
+  --topbar-border: rgba(35, 35, 31, 0.08);
+  --rail-bg: #f7f2e9;
+  --rail-border: rgba(35, 35, 31, 0.08);
+
+  // 旧别名兼容
+  --color-primary: var(--lime-ink);
+  --color-primary-dark: var(--lime-2);
+  --color-secondary: var(--orange);
+  --color-blue: var(--cyan);
+  --color-bg: var(--bg);
+  --color-bg-card: var(--surface);
+  --color-text: var(--text-1);
+  --color-text-secondary: var(--text-2);
+  --color-border: var(--border);
+  --color-danger: var(--red);
+  --color-success: var(--green);
+  --color-warning: var(--orange);
+  --shadow-card: var(--shadow-1);
+  --nav-bar-bg: rgba(251, 247, 240, 0.9);
+  --nav-bar-text: var(--text-1);
+  --tabbar-bg: rgba(255, 255, 255, 0.94);
+  --tabbar-text: var(--text-3);
+  --tabbar-active: var(--lime-ink);
+}
+
+// 深色：暖性深褐（不是纯黑）——保留夜间可用，同时避免强对比疲劳
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #1b1913;
+  --bg-2: #201e17;
+  --surface: #262319;
+  --surface-2: #2e2b20;
+  --hover: #33301f;
+
+  --border: rgba(242, 237, 227, 0.1);
+  --border-2: rgba(242, 237, 227, 0.18);
+
+  --text-1: #f3eee3;
+  --text-2: #b9b3a4;
+  --text-3: #8a8375;
+
+  --lime: @lime;
+  --lime-2: @lime-2;
+  --lime-ink: #cfe68a; // 深底上用浅柠保证可读性
+  --on-lime: #23231f;
+  --lime-soft: rgba(198, 242, 78, 0.16);
+
+  --olive: #a9c46f;
+  --olive-soft: rgba(169, 196, 111, 0.16);
+  --clay: #dda172;
+  --clay-soft: rgba(221, 161, 114, 0.16);
+  --sky: #86bfd2;
+  --sky-soft: rgba(134, 191, 210, 0.16);
+  --violet: #a99bf0;
+
+  --orange: var(--clay);
+  --orange-soft: var(--clay-soft);
+  --cyan: var(--sky);
+  --cyan-soft: var(--sky-soft);
+  --green: var(--olive);
+  --red: #e58b6a;
+  --red-soft: rgba(229, 139, 106, 0.16);
+
+  --grid-line: transparent;
+  --grain-opacity: 0;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 2px 10px rgba(0, 0, 0, 0.3);
+  --shadow-2: 0 6px 20px rgba(0, 0, 0, 0.45);
+  --shadow-3: 0 20px 52px rgba(0, 0, 0, 0.55);
+  --glow-lime: 0 6px 20px rgba(198, 242, 78, 0.18);
+
+  --topbar-bg: rgba(27, 25, 19, 0.82);
+  --topbar-border: rgba(242, 237, 227, 0.08);
+  --rail-bg: #201e17;
+  --rail-border: rgba(242, 237, 227, 0.08);
+
+  --color-primary: var(--lime-ink);
+  --color-primary-dark: var(--lime-2);
+  --color-secondary: var(--orange);
+  --color-blue: var(--cyan);
+  --color-bg: var(--bg);
+  --color-bg-card: var(--surface);
+  --color-text: var(--text-1);
+  --color-text-secondary: var(--text-2);
+  --color-border: var(--border);
+  --color-danger: var(--red);
+  --color-success: var(--green);
+  --color-warning: var(--orange);
+  --shadow-card: var(--shadow-1);
+  --nav-bar-bg: rgba(27, 25, 19, 0.9);
+  --nav-bar-text: var(--text-1);
+  --tabbar-bg: rgba(32, 30, 23, 0.94);
+  --tabbar-text: var(--text-3);
+  --tabbar-active: var(--lime);
+}

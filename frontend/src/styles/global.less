@@ -1,0 +1,652 @@
+@import './variable.less';
+
+// =============================================================
+//  Reset & 基础
+// =============================================================
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  // 移动端 REM 适配（375 设计稿：1rem = 37.5px），Vant 组件按此缩放
+  font-size: min(37.5px, 10vw);
+  -webkit-text-size-adjust: 100%;
+}
+
+// 桌面端必须回到浏览器默认 16px，否则所有 Vant 组件（日历/弹层/动作条）
+// 会被放大 2.34 倍，出现「安卓味」的巨大控件
+@media (min-width: 1024px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: @font-body;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-1);
+  background-color: var(--bg);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+// 背景：发丝网格 + 颗粒噪点（工业质感）
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 46px 46px;
+  -webkit-mask-image: radial-gradient(130% 105% at 50% -10%, #000 52%, transparent 100%);
+  mask-image: radial-gradient(130% 105% at 50% -10%, #000 52%, transparent 100%);
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+#app {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+// 大气层：柔和光晕（青柠 + 青）
+.aura {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -20%;
+    // 极淡的暖光晕，只为了让卡片浮出纸面，不做可见的霓虹效果
+    background:
+      radial-gradient(760px 520px at 6% -12%, rgba(198, 242, 78, 0.16), transparent 62%),
+      radial-gradient(700px 480px at 104% 0%, rgba(201, 122, 69, 0.1), transparent 60%);
+    filter: blur(10px);
+  }
+}
+
+// =============================================================
+//  排版
+// =============================================================
+h1,
+h2,
+h3,
+h4 {
+  font-family: @font-display;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-1);
+  margin: 0;
+}
+
+a {
+  color: var(--lime-ink);
+  text-decoration: none;
+}
+
+// 等宽数字 -> 表格对齐数字：保留数字位宽一致（不跳动），
+// 但不再使用等宽字体的开发者工具体感。
+.num,
+.mono {
+  font-family: @font-display;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  letter-spacing: -0.01em;
+}
+
+// 小标签：中文口语辅助说明，去掉等宽大写与刻度线，改为温和的圆点引导
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--text-3);
+
+  &::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--lime-ink);
+    flex-shrink: 0;
+  }
+}
+
+.section-title {
+  font-family: @font-display;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-1);
+  margin: 0 0 12px;
+}
+
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+// =============================================================
+//  卡片
+// =============================================================
+.card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: @r-lg;
+  box-shadow: var(--shadow-1);
+  padding: 20px;
+}
+
+// 边缘亮线卡片 -> 取消装饰线：层级由留白与阴影承担
+// （统一下线：改的方向里，边缘高光属于"由装饰决定层级"的典型手法）
+.card--edge::before {
+  display: none;
+}
+
+// =============================================================
+//  主按钮
+// =============================================================
+.qxs-btn {
+  height: 46px;
+  border-radius: @r-md;
+  border: none;
+  background: var(--lime);
+  color: var(--on-lime);
+  font-family: @font-display;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  width: 100%;
+  cursor: pointer;
+  transition: transform @dur-fast @ease-out, box-shadow @dur-fast @ease-out,
+    filter @dur-fast @ease-out;
+
+  &:hover {
+    filter: brightness(1.06);
+    box-shadow: var(--glow-lime);
+  }
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+// =============================================================
+//  入场编排（错峰）
+// =============================================================
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.stagger > * {
+  animation: rise 0.5s @ease-out both;
+}
+.stagger > *:nth-child(1) { animation-delay: 0.02s; }
+.stagger > *:nth-child(2) { animation-delay: 0.08s; }
+.stagger > *:nth-child(3) { animation-delay: 0.14s; }
+.stagger > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger > *:nth-child(5) { animation-delay: 0.26s; }
+.stagger > *:nth-child(6) { animation-delay: 0.32s; }
+.stagger > *:nth-child(7) { animation-delay: 0.38s; }
+.stagger > *:nth-child(8) { animation-delay: 0.44s; }
+
+// =============================================================
+//  应用骨架（桌面）
+// =============================================================
+.app-shell {
+  display: flex;
+  // 固定视口高度：侧栏与顶栏不随内容滚动，只有内容区内部滚动
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-main-wrap {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 26px 30px 56px;
+}
+
+.page-container {
+  max-width: var(--content-max, 1320px);
+  margin: 0 auto;
+  width: 100%;
+}
+
+// 全幅页面（AI 助手等）：去掉容器内边距与最大宽度，由页面自行管理。
+// 关键：flush 页高度固定为内容区可视高度（flex 撑满 + 关闭页面级滚动），
+// 这样 .ai-page 的 height:100% 才能生效，底部输入栏才能固定住、
+// 长回答时只有消息区内部滚动，不会把输入栏顶出屏幕。
+.app-content--flush {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .page-container {
+    max-width: none;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+
+    > * {
+      flex: 1;
+      min-height: 0;
+    }
+  }
+}
+
+// =============================================================
+//  应用骨架（移动）
+//  与桌面一致：壳层固定视口高，只有内容区滚动。
+//  好处：滚动条只属于内容区，不再「穿过」底部 Tab 栏；
+//        AI 等全幅页不再需要用 calc 硬算高度（消除下方空隙）。
+// =============================================================
+.app-shell-mobile {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.app-content-m {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  // 移动端页面四周留白（左右 / 上下）。
+  // 底部 Tab 栏已改为壳层 flex 流内兄弟（不再 fixed 覆盖），
+  // 内容区高度会自动停在 Tab 栏上方，因此底部只需常规留白即可。
+  padding: 14px 14px 14px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// 全幅页面（AI 助手）：去掉内边距，由页面自己管理内部滚动
+.app-content-m--flush {
+  padding: 0;
+  overflow: hidden;
+  // 必须自身是 flex 容器，否则子级 .page-container 的 flex:1 不生效，
+  // 页面高度会塌缩到 min-height，导致「无法滑动 / 底部输入栏不可见」
+  display: flex;
+  flex-direction: column;
+
+  .page-container {
+    max-width: none;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+
+    > * {
+      flex: 1;
+      min-height: 0;
+    }
+  }
+}
+
+// =============================================================
+//  认证页容器
+// =============================================================
+.auth-stage {
+  min-height: 100vh;
+}
+
+.auth-center {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+// =============================================================
+//  路由过渡
+// =============================================================
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity @dur @ease-out, transform @dur @ease-out;
+}
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.fade-leave-to {
+  opacity: 0;
+}
+
+// =============================================================
+//  滚动条
+// =============================================================
+.app-content::-webkit-scrollbar,
+.auth-stage::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.app-content::-webkit-scrollbar-thumb,
+.auth-stage::-webkit-scrollbar-thumb {
+  background: var(--border-2);
+  border-radius: 10px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+.app-content::-webkit-scrollbar-thumb:hover,
+.auth-stage::-webkit-scrollbar-thumb:hover {
+  background: var(--text-3);
+  background-clip: padding-box;
+  border: 3px solid transparent;
+}
+
+// =============================================================
+//  焦点可见
+// =============================================================
+// 浅色主题下青柠轮廓几乎不可见，统一换成可读的深橄榄，
+// 保证键盘用户在任何主题下都能看清焦点位置
+:focus-visible {
+  outline: 2px solid var(--lime-ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+// =============================================================
+//  栅格工具
+// =============================================================
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+// =============================================================
+//  Vant 组件主题映射
+// =============================================================
+:root,
+[data-theme='dark'],
+[data-theme='light'] {
+  // 青柠只做色块填充；作为文字色（标签高亮、链接）时统一用可读的深橄榄
+  --van-primary-color: var(--lime-ink);
+  --van-success-color: var(--green);
+  --van-danger-color: var(--red);
+  --van-warning-color: var(--orange);
+
+  --van-background: var(--bg);
+  --van-background-2: var(--surface);
+  --van-background-3: var(--surface-2);
+  --van-text-color: var(--text-1);
+  --van-text-color-2: var(--text-2);
+  --van-text-color-3: var(--text-3);
+  --van-border-color: var(--border);
+  --van-active-color: var(--hover);
+  --van-gray-1: var(--surface-2);
+  --van-gray-2: var(--surface-2);
+  --van-gray-3: var(--border);
+  --van-gray-8: var(--text-2);
+
+  --van-button-primary-background: var(--lime);
+  --van-button-primary-border-color: var(--lime);
+  --van-button-primary-color: var(--on-lime);
+  --van-button-default-background: var(--surface-2);
+  --van-button-default-color: var(--text-1);
+  --van-button-default-border-color: var(--border-2);
+  --van-button-border-radius: @r-md;
+
+  --van-cell-background: transparent;
+  --van-cell-text-color: var(--text-1);
+  --van-cell-value-color: var(--text-2);
+  --van-cell-border-color: var(--border);
+  --van-field-label-color: var(--text-2);
+  --van-field-input-text-color: var(--text-1);
+  --van-field-placeholder-text-color: var(--text-3);
+
+  --van-radio-checked-icon-color: var(--lime);
+  --van-checkbox-checked-icon-color: var(--lime);
+  --van-switch-on-background: var(--lime);
+  --van-switch-background: var(--surface-2);
+
+  --van-tabs-nav-background: transparent;
+  --van-tab-text-color: var(--text-2);
+  --van-tab-active-text-color: var(--text-1);
+  --van-tabs-bottom-bar-color: var(--lime);
+  --van-tabs-bottom-bar-width: 28px;
+
+  --van-progress-background: var(--surface-2);
+  --van-progress-color: var(--lime);
+
+  --van-popup-background: var(--surface);
+  --van-action-sheet-item-background: var(--surface);
+  --van-action-sheet-cancel-text-color: var(--text-2);
+  --van-dialog-background: var(--surface);
+  --van-dialog-header-font-weight: 600;
+
+  --van-toast-background: rgba(24, 30, 40, 0.94);
+  --van-toast-text-color: #fff;
+  --van-loading-spinner-color: var(--lime);
+  --van-empty-description-color: var(--text-3);
+  --van-calendar-background: var(--surface);
+  --van-calendar-month-title-font-size: 14px;
+  --van-calendar-selected-day-background: var(--lime);
+  --van-calendar-day-height: 60px;
+  --van-cell-group-inset-padding: 0;
+
+  // 日历月份水印大字：默认 160px 且过实，压成极淡的背景层
+  --van-calendar-month-mark-color: rgba(120, 130, 140, 0.05);
+  --van-calendar-month-mark-font-size: 132px;
+}
+
+[data-theme='dark'] {
+  --van-calendar-month-mark-color: rgba(255, 255, 255, 0.05);
+}
+
+// 让 Vant 主按钮更"工业"
+.van-button--primary {
+  font-family: @font-display;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.van-toast {
+  border-radius: @r-md;
+  font-family: @font-body;
+}
+.van-dialog {
+  border-radius: @r-lg;
+}
+.van-calendar {
+  border-radius: @r-lg @r-lg 0 0;
+}
+.van-field__label {
+  font-family: @font-body;
+}
+
+// 移动端顶栏 / 桌面顶栏内的 icon 按钮
+.icon-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  border-radius: @r-md;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background @dur-fast @ease-out, color @dur-fast @ease-out;
+
+  &:hover {
+    background: var(--hover);
+    color: var(--text-1);
+  }
+}
+
+// =============================================================
+//  响应式栅格降级
+// =============================================================
+@media (max-width: 1023px) {
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+// 中等桌面（1024~1439）：三列太挤，降级为两列；
+// ≥1440 才恢复三列，保证「一屏同见多图」时的图表宽度不塌陷
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+// =============================================================
+//  桌面端：去除「安卓 / 移动端」观感
+//  移动端专属的「底部抽屉 / 通栏弹层 / 80% 高日历」在桌面上改为居中对话框，
+//  并收敛控件尺寸，避免看起来像被拉伸的手机界面。
+// =============================================================
+@media (min-width: 1024px) {
+  // 1) 底部抽屉 -> 居中对话框
+  .van-popup--bottom,
+  .van-popup--top {
+    left: 50% !important;
+    right: auto !important;
+    top: 50% !important;
+    bottom: auto !important;
+    width: min(560px, 90vw) !important;
+    max-width: min(560px, 90vw) !important;
+    max-height: 82vh;
+    border-radius: @r-lg !important;
+    border: 1px solid var(--border);
+    box-shadow: 0 26px 70px rgba(0, 0, 0, 0.38);
+    transform: translate(-50%, -50%) !important;
+    // 关掉滑入动画：否则会先贴底滑入再跳到居中
+    animation: none !important;
+    transition: opacity @dur-fast @ease-out !important;
+    overflow-y: auto;
+  }
+
+  // 2) 动作面板同样居中
+  .van-action-sheet {
+    width: min(520px, 90vw);
+    max-height: 74vh;
+    border-radius: @r-lg;
+  }
+
+  // 3) 日历：居中卡片式，尺寸收敛（默认 80% 高 + 64px 日格 = 手机观感）
+  .van-calendar__popup.van-popup--bottom {
+    width: min(760px, 92vw) !important;
+    max-width: min(760px, 92vw) !important;
+    height: auto !important;
+    max-height: 86vh;
+    --van-calendar-day-height: 46px;
+    --van-calendar-selected-day-size: 40px;
+    --van-calendar-popup-height: auto;
+  }
+  .van-calendar__month-mark {
+    font-size: 150px;
+    opacity: 0.5;
+    letter-spacing: -0.04em;
+  }
+
+  // 4) 确认框 / Toast 收敛尺寸
+  .van-dialog {
+    width: min(460px, 90vw) !important;
+  }
+  .van-toast {
+    max-width: 420px;
+    padding: 10px 16px;
+    font-size: 13.5px;
+  }
+  .van-image-preview__overlay,
+  .van-image-preview__swipe {
+    // 图片预览保持全屏即可，不做改动
+  }
+
+  // 5) 抽屉式侧栏在桌面不使用（仅移动端 drawer），这里兜底避免全屏铺满
+  .rail.drawer {
+    width: 280px;
+  }
+}
+
+// 头像
+.avatar-box {
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--lime), #7bd64a);
+  color: var(--on-lime);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: @font-display;
+  font-weight: 700;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+// =============================================================
+//  降级动效
+// =============================================================
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .stagger > * {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

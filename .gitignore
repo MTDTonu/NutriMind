@@ -1,0 +1,53 @@
+# Python
+backend/.venv/
+.venv/
+venv/
+__pycache__/
+backend/**/__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+backend/diet.db
+*.db
+*.sqlite
+*.sqlite3
+*.db.bak-*
+*.db-wal
+*.db-shm
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/.env
+
+# Node / Frontend
+frontend/node_modules/
+node_modules/
+frontend/dist/
+dist/
+.vite/
+frontend/package-lock.json
+*.timestamp-*.mjs
+frontend/.env
+
+# 密钥 / 本地配置（通用，绝不上传）
+.env
+.env.local
+*.local.env
+
+# 开发残留 / 垃圾文件
+nul
+aipage.png
+mineconf.png
+mineconf.yaml
+*.log
+.shots/
+.tmp-smoke/
+
+# WorkBuddy 项目记忆 / 测试工具产物
+.workbuddy/
+.playwright-cli/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

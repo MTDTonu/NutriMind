@@ -1,0 +1,30 @@
+{
+  "name": "nutrimind-web-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "知食 NutriMind - AI 饮食教练 前端工程",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@rollup/rollup-win32-x64-msvc": "^4.63.5",
+    "axios": "^1.7.0",
+    "echarts": "^5.5.0",
+    "markdown-it": "^14.3.2",
+    "pinia": "^2.2.0",
+    "vant": "^4.9.0",
+    "vue": "^3.4.0",
+    "vue-router": "^4.4.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.0",
+    "less": "^4.2.0",
+    "vite": "^5.4.0"
+  },
+  "optionalDependencies": {
+    "@esbuild/win32-x64": "^0.21.5"
+  }
+}

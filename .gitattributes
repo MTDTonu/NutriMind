@@ -1,0 +1,17 @@
+# 一键脚本编码保护（配合 windows-oneshot-script-encoding 技能）
+#
+# .ps1 必须带 UTF-8 BOM：Windows PowerShell 5.1 无 BOM 时按 GBK 解码，中文全乱码。
+# 因此禁止 Git 做任何换行/编码转换（-text = 视为二进制，字节原样保留）。
+*.ps1 -text
+
+# .bat 必须纯 ASCII 且用 CRLF：LF 换行会让 cmd 的 if(...) 块解析异常。
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 常规文本文件统一 LF（不影响上述规则）
+*.js    text eol=lf
+*.vue   text eol=lf
+*.py    text eol=lf
+*.json  text eol=lf
+*.md    text eol=lf
+*.less  text eol=lf
